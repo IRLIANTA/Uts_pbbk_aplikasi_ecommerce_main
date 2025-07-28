@@ -15,12 +15,15 @@ use App\Http\Controllers\StockController;
 // Login endpoint (tanpa auth)
 Route::post('/login', [AuthController::class, 'login']);
 
+// SignUp
+Route::post('/register', [AuthController::class, 'register']);
+
 // Group routes that require authentication
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Jika ingin API User aktifkan bagian ini:
-    Route::apiResource('users', UserController::class);
+    Route::apiResource('user', UserController::class);
 
     Route::apiResource('products', ProductController::class);
     Route::apiResource('categories', CategoryController::class);

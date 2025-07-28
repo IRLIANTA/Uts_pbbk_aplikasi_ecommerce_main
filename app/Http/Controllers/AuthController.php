@@ -17,7 +17,7 @@ class AuthController extends Controller
         $credentials = $request->validated();
 
 
-        $user = User::whereRaw('BINARY username = ?', [$credentials['username']])->first();
+        $user = User::where('username', $credentials['username'])->first();
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'username' => 'Username atau password salah.',
@@ -32,11 +32,27 @@ class AuthController extends Controller
     }
 
     public function logout(Request $request)
-{
-    $request->user()->currentAccessToken()->delete();
+        {
+            $request->user()->currentAccessToken()->delete();
 
-    return response()->json([
-        'message' => 'Logout berhasil.',
-    ]);
-}
+            return response()->json([
+                'message' => 'Logout berhasil.',
+            ]);
+        }
+
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $validated['password'] = Hash::make($validated['password']);
+
+        $user = User::create($validated);
+
+        return response()->json(['message' => 'User created successfully', 'user' => $user], 201);
+    }
 }
